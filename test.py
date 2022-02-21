@@ -28,3 +28,11 @@ if __name__ == '__main__':
     add_process(printf,'hi1')
     add_process(printf,'hi2')
     add_process(printf,'hi3')
+    
+    
+    
+    
+    
+    dnspython
+    asynciofiles
+    motor
