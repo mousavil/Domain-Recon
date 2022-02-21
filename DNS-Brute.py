@@ -129,7 +129,7 @@ async def main():
 
     use_assetfinder, use_subfinder, use_sublist3r, use_findomain, use_abuseip_api, config_path,return_diffrences = args['use_assetfinder'], args['use_subfinder'], args['use_sublist3r'], args['use_findomain'], args['use_abuseip_api'], args['config'],args['return_diffrences']
     domain=Domain()
-    domain.name=args.domain
+    domain.name=args['domain']
 
     if config_path:
         await validate_file(config_path)
