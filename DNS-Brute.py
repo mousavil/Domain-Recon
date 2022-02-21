@@ -122,12 +122,12 @@ async def main():
     except:
         exit(0)
 
-    if (not (args['use_assetfinder'] or args.use_subfinder or args.use_sublist3r or \
-            args.use_findomain or args.use_abuseip_api or args.config)) or not args.domain:
+    if (not (args['use_assetfinder'] or args['use_subfinder'] or args['use_sublist3r'] or \
+            args['use_findomain'] or args['use_abuseip_api'] or args['config'])) or not args['domain']:
         print('Wrong Argument Passing!')
         sys.exit()
 
-    use_assetfinder, use_subfinder, use_sublist3r, use_findomain, use_abuseip_api, config_path,return_diffrences = args.use_assetfinder, args.use_subfinder, args.use_sublist3r, args.use_findomain, args.use_abuseip_api, args.config,args.return_diffrences
+    use_assetfinder, use_subfinder, use_sublist3r, use_findomain, use_abuseip_api, config_path,return_diffrences = args['use_assetfinder'], args['use_subfinder'], args['use_sublist3r'], args['use_findomain'], args['use_abuseip_api'], args['config'],args['return_diffrences']
     domain=Domain()
     domain.name=args.domain
 
