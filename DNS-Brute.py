@@ -179,7 +179,7 @@ async def main():
     # db connection setup
     client = mongo.AsyncIOMotorClient(
         f'mongodb://{DB_USERNAME}:{DB_PASSWORD}@127.0.0.1/admin?retryWrites=true&w=majority')
-    db = client[domain.name]
+    db = client[domain.name.replace('.','-')]
     
 
     # Get Resolver
