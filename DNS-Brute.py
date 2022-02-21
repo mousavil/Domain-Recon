@@ -114,7 +114,7 @@ async def main():
                         action="store_true", dest="return_diffrences")
     parser.add_argument('-c', "--config",
                         help="You Can Use Config File Instead; With Extra Options. If Config With Argument Are Passed, Config File Will Only Be Used ",
-                        action="store_const",required=False)
+                        dest="config",required=False)
 
 
     try:
