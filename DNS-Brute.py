@@ -128,7 +128,7 @@ async def main():
         print('Wrong Argument Passing!')
         sys.exit()
 
-    use_assetfinder, use_subfinder, use_sublist3r, use_findomain, use_abuseip_api, config_path,return_diffrences = args['use_assetfinder'], args['use_subfinder'], args['use_sublist3r'], args['use_findomain'], args['use_abuseip_api'], args['config'],args['return_diffrences']
+    use_assetfinder, use_subfinder, use_sublist3r, use_findomain,use_certsh_api, use_abuseip_api, config_path,return_diffrences = args['use_assetfinder'], args['use_subfinder'], args['use_sublist3r'], args['use_findomain'],args['use_certsh_api'], args['use_abuseip_api'], args['config'],args['return_diffrences']
     domain=Domain()
     domain.name=args['domain']
 
@@ -195,8 +195,7 @@ async def main():
         previous_inserted_subdomains=await db['subdomains'].find_one()
         returning_subdomains=merged_subdomains - previous_inserted_subdomains.names
     db['subdomains'].insert_one({'names':merged_subdomains})
-    # if domain.generate_worldlist:
-
+    # if domain.generate_wordlist:
     #     # Bind Wordlist with domain --> <wordlist>.domain.tld
     #     # remove soon
     #     # os.chdir(path1)
