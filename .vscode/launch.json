@@ -8,7 +8,8 @@
             "request": "launch",
             "args": [
                 "-d", "pishrocloud.com",
-                "-sf"
+                "-sf",
+                "-sl"
             ],
             "program": "${file}",
             "console": "integratedTerminal"

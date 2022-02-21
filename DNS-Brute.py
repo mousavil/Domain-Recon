@@ -30,42 +30,42 @@ def validate_file(file_path:str):
 
 def call_subfinder(domain: str,q:Queue):
     try:
-        subfinder = subprocess.Popen("subfinder -d " + domain, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = subfinder.communicate()
-        for line in out.decode('utf-8').split('\n'):
-            if domain in line:
-                q.put(line)
-
+        # subfinder = subprocess.Popen(["subfinder", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # out, err = subfinder.communicate()
+        # for line in out.decode('utf-8').split('\n'):
+        #     if domain in line:
+        q.put("line1")
+        q.put('Done')
     except Exception as e:        
         file=open('/home/amirmousavi/Desktop/projects/dns-brute/test1.txt','w')
         file.write(str(e))
         file.close()
 
-
 def call_sublist3r(domain: str,q:Queue):
-    sublist3r = subprocess.Popen("sublist3r -d " + domain, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = sublist3r.communicate()
-    for line in out.decode('utf-8').split('\n'):
-        if domain in line:
-            q.put(line)
-
-
+    # sublist3r = subprocess.Popen(["sublist3r", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # out, err = sublist3r.communicate()
+    # for line in out.decode('utf-8').split('\n'):
+    #     if domain in line:
+    #         q.put(line)
+    q.put("line2")
+    q.put('Done')
 
 def call_findomain(domain: str,q:Queue):
-    findomain = subprocess.Popen("findomain-linux --target " + domain, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    findomain = subprocess.Popen(["findomain-linux" ,"--target", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = findomain.communicate()
     for line in out.decode('utf-8').split('\n'):
         if domain in line:
             q.put(line)
-
+    q.put('Done')
 
 def call_assetfinder(domain: str,q:Queue):
-    assetfinder = subprocess.Popen("assetfinder --subs-only " + domain, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    assetfinder = subprocess.Popen(["assetfinder", "--subs-only", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = assetfinder.communicate()
     for line in out.decode('utf-8').split('\n'):
         if domain in line:
             q.put(line)
-
+    q.put('Done')
+    
 def call_certsh(domain: str,q:Queue):
     certsh = subprocess.Popen(
         'curl -sk "https://crt.sh/?q=' + domain + '&output=json" | jq -r ".[].common_name,.[].name_value" | deduplicate --sort >> DB-DNS-Brute/API_crt-sh.txt',
@@ -74,7 +74,7 @@ def call_certsh(domain: str,q:Queue):
     for line in out.decode('utf-8').split('\n'):
         if domain in line:
             q.put(line)
-
+    q.put('Done')
 
 def call_abuse_ip(domain: str,q:Queue):
     abuse_ip = subprocess.Popen(
@@ -84,7 +84,7 @@ def call_abuse_ip(domain: str,q:Queue):
     for line in out.decode('utf-8').split('\n'):
         if domain in line:
             q.put(line)
-
+    q.put('Done')
 
 def add_process(function,domain,q):
     global processes
@@ -96,6 +96,13 @@ def join_process(proc: Process):
     if proc is not None:
         proc.join()
 
+def append_subdomains(q:Queue):
+    global subdomains
+    while True:
+        sub= q.get()
+        if sub == 'Done' or sub == None:
+            break
+        subdomains.append(sub)
 
 #Main Function
 
@@ -150,27 +157,33 @@ async def main():
 
 
     try:
-        q=Queue()
+        q1=Queue();q2=Queue();q3=Queue();q4=Queue();q5=Queue();q6=Queue()
         if use_assetfinder:
-            add_process(call_assetfinder,domain.name,q)
+            add_process(call_assetfinder,domain.name,q1)
         if use_subfinder:
-            add_process(call_subfinder,domain.name,q)
+            add_process(call_subfinder,domain.name,q2)
         if use_sublist3r:
-            add_process(call_sublist3r,domain.name,q)
+            add_process(call_sublist3r,domain.name,q3)
         if use_findomain:
-            add_process(call_findomain,domain.name,q)
+            add_process(call_findomain,domain.name,q4)
         if use_abuseip_api:
-            add_process(call_abuse_ip,domain.name,q)
+            add_process(call_abuse_ip,domain.name,q5)
         if use_certsh_api:
-            add_process(call_certsh,domain.name,q)
+            add_process(call_certsh,domain.name,q6)
         for proc in processes:
             join_process(proc)
+        
             
     except KeyboardInterrupt:
         pass
     finally:
-        for subdomain in iter(q.get()   , None):
-            subdomains.append(subdomain)
+        append_subdomains(q1)
+        append_subdomains(q2)
+        append_subdomains(q3)
+        append_subdomains(q4)
+        append_subdomains(q5)
+        append_subdomains(q6)
+
             
     # db connection setup
     client = mongo.AsyncIOMotorClient(
