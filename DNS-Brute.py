@@ -111,7 +111,7 @@ async def main():
     parser.add_argument('-aip', "--use-abuseip-api", help="To Use AbuseIP API",
                         action="store_true", dest="use_abuseip_api",required=False)
     parser.add_argument('-m', "--diff", help="Get Only New Subdomains",
-                        action="store_true", dest="return_diffrences",required=True)
+                        action="store_true", dest="return_diffrences")
     parser.add_argument('-c', "--config",
                         help="You Can Use Config File Instead; With Extra Options. If Config With Argument Are Passed, Config File Will Only Be Used ",
                         action="store_const",required=False)
