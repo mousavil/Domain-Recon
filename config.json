@@ -4,5 +4,6 @@
   "use-sublist3r": false,
   "use-findomain": false,
   "use-certsh-api": false,
-  "use-abuseip-api": true
+  "use-abuseip-api": true,
+  "return-diffrences": false
 }

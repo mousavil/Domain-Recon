@@ -20,10 +20,11 @@ def printf(name):
     print(name)
 
 def add_process(function,domain):
-    proc = Process(target=function, args=(domain))
+    proc = Process(target=function, args=(domain,))
     processes.append(proc)
     proc.start()
 
 if __name__ == '__main__':
-    freeze_support()
+    add_process(printf,'hi1')
     add_process(printf,'hi2')
+    add_process(printf,'hi3')
