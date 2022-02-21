@@ -189,6 +189,7 @@ async def main():
 
 
     merged_subdomains = list(set(subdomains))
+    print("merged_subdomains",merged_subdomains)
     if return_diffrences:
         previous_inserted_subdomains=await db['subdomains'].find_one()
         returning_subdomains=merged_subdomains - previous_inserted_subdomains.names
