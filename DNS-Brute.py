@@ -122,7 +122,7 @@ async def main():
     except:
         exit(0)
 
-    if (not (args.use_assetfinder or args.use_subfinder or args.use_sublist3r or \
+    if (not (args['use_assetfinder'] or args.use_subfinder or args.use_sublist3r or \
             args.use_findomain or args.use_abuseip_api or args.config)) or not args.domain:
         print('Wrong Argument Passing!')
         sys.exit()
