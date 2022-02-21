@@ -33,6 +33,7 @@ async def call_subfinder(domain: str,q:Queue):
     out, err = subfinder.communicate()
     for line in out.decode('utf-8').split('\n'):
         if domain in line:
+            print('hi')
             q.put(line)
 
 
@@ -144,37 +145,37 @@ async def main():
             return_diffrences=config['return-diffrences']
 
 
-        try:
-            q=Queue()
-            proc1=None
-            proc2=None
-            proc3=None
-            proc4=None
-            proc5=None
-            proc6=None
-            if use_assetfinder:
-                proc1=add_process(call_assetfinder,domain.name,q)
-            if use_subfinder:
-                proc2=add_process(call_subfinder,domain.name,q)
-            if use_sublist3r:
-                proc3=add_process(call_sublist3r,domain.name,q)
-            if use_findomain:
-                proc4=add_process(call_findomain,domain.name,q)
-            if use_abuseip_api:
-                proc5=add_process(call_abuse_ip,domain.name,q)
-            if use_certsh_api:
-                proc6=add_process(call_certsh,domain.name,q)
-            join_process(proc1)
-            join_process(proc2)
-            join_process(proc3)
-            join_process(proc4)
-            join_process(proc5)
-            join_process(proc6)
-        except KeyboardInterrupt:
-            pass
-        finally:
-            for subdomain in iter(q.get, None):
-                subdomains.append(subdomain)
+    try:
+        q=Queue()
+        proc1=None
+        proc2=None
+        proc3=None
+        proc4=None
+        proc5=None
+        proc6=None
+        if use_assetfinder:
+            proc1=add_process(call_assetfinder,domain.name,q)
+        if use_subfinder:
+            proc2=add_process(call_subfinder,domain.name,q)
+        if use_sublist3r:
+            proc3=add_process(call_sublist3r,domain.name,q)
+        if use_findomain:
+            proc4=add_process(call_findomain,domain.name,q)
+        if use_abuseip_api:
+            proc5=add_process(call_abuse_ip,domain.name,q)
+        if use_certsh_api:
+            proc6=add_process(call_certsh,domain.name,q)
+        join_process(proc1)
+        join_process(proc2)
+        join_process(proc3)
+        join_process(proc4)
+        join_process(proc5)
+        join_process(proc6)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        for subdomain in iter(q.get, None):
+            subdomains.append(subdomain)
             
     # db connection setup
     client = mongo.AsyncIOMotorClient(
