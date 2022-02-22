@@ -194,12 +194,13 @@ async def main():
 
 
     merged_subdomains = list(set(subdomains))
-    print("merged_subdomains",merged_subdomains)
+    returning_subdomains=merged_subdomains
     if return_diffrences:
         previous_inserted_subdomains=await db['subdomains'].find({})
         returning_subdomains=merged_subdomains - [pisubdomain.name for pisubdomain in previous_inserted_subdomains]
     db['subdomains'].insert_many([{'name': subdomain } for subdomain in merged_subdomains])
     print(returning_subdomains)
+    return
     # if wordlist is not None:
     #     await validate_file(config_path)
     #     async with aiofiles.open(config_path, mode='r') as f:
