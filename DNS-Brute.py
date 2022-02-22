@@ -196,7 +196,7 @@ async def main():
     if return_diffrences:
         previous_inserted_subdomains=await db['subdomains'].find_one()
         returning_subdomains=merged_subdomains - previous_inserted_subdomains.names
-    db['subdomains'].insert_one({'names':merged_subdomains})
+    db['subdomains'].insert_one([{'name': subdomain } for subdomain in merged_subdomains])
     # if domain.generate_wordlist:
     #     # Bind Wordlist with domain --> <wordlist>.domain.tld
     #     # remove soon
