@@ -27,64 +27,52 @@ class Domain(object):
 def validate_file(file_path:str):
     return path.isfile(file_path)
 
+def add_founded_subdomains_to_q(domain,q,out:bytes):
+    for line in out.decode('utf-8').split('\n'):
+        if domain in line:
+            q.put(line)
+    q.put('Done')
+    
 
 def call_subfinder(domain: str,q:Queue):
-    try:
-        # subfinder = subprocess.Popen(["subfinder", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # out, err = subfinder.communicate()
-        # for line in out.decode('utf-8').split('\n'):
-        #     if domain in line:
-        q.put("line1")
-        q.put('Done')
-    except Exception as e:        
-        file=open('/home/amirmousavi/Desktop/projects/dns-brute/test1.txt','w')
-        file.write(str(e))
-        file.close()
+    subfinder = subprocess.Popen(["subfinder", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = subfinder.communicate()
+    add_founded_subdomains_to_q(domain,q,out)
+
 
 def call_sublist3r(domain: str,q:Queue):
-    # sublist3r = subprocess.Popen(["sublist3r", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    # out, err = sublist3r.communicate()
-    # for line in out.decode('utf-8').split('\n'):
-    #     if domain in line:
-    #         q.put(line)
-    q.put("line2")
-    q.put('Done')
+    sublist3r = subprocess.Popen(["sublist3r", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = sublist3r.communicate()
+    add_founded_subdomains_to_q(domain,q,out)
+
 
 def call_findomain(domain: str,q:Queue):
     findomain = subprocess.Popen(["findomain-linux" ,"--target", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = findomain.communicate()
-    for line in out.decode('utf-8').split('\n'):
-        if domain in line:
-            q.put(line)
-    q.put('Done')
+    add_founded_subdomains_to_q(domain,q,out)
+
 
 def call_assetfinder(domain: str,q:Queue):
     assetfinder = subprocess.Popen(["assetfinder", "--subs-only", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = assetfinder.communicate()
-    for line in out.decode('utf-8').split('\n'):
-        if domain in line:
-            q.put(line)
-    q.put('Done')
+    add_founded_subdomains_to_q(domain,q,out)
+
     
 def call_certsh(domain: str,q:Queue):
     certsh = subprocess.Popen(
         'curl -sk "https://crt.sh/?q=' + domain + '&output=json" | jq -r ".[].common_name,.[].name_value" | deduplicate --sort >> DB-DNS-Brute/API_crt-sh.txt',
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = certsh.communicate()
-    for line in out.decode('utf-8').split('\n'):
-        if domain in line:
-            q.put(line)
-    q.put('Done')
+    add_founded_subdomains_to_q(domain,q,out)
+
 
 def call_abuse_ip(domain: str,q:Queue):
     abuse_ip = subprocess.Popen(
         '''curl -s "https://www.abuseipdb.com/whois/''' + domain + '''" -H "user-agent: Chrome" | grep -E "<li>\w.*</li>" | sed -E "s/<\/?li>//g" | sed -e "s/$/.''' + domain + '''/" >> DB-DNS-Brute/API_abuseipdb.txt''',
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = abuse_ip.communicate()
-    for line in out.decode('utf-8').split('\n'):
-        if domain in line:
-            q.put(line)
-    q.put('Done')
+    add_founded_subdomains_to_q(domain,q,out)
+
 
 def add_process(function,domain,q):
     global processes
@@ -177,12 +165,18 @@ async def main():
     except KeyboardInterrupt:
         pass
     finally:
-        append_subdomains(q1)
-        append_subdomains(q2)
-        append_subdomains(q3)
-        append_subdomains(q4)
-        append_subdomains(q5)
-        append_subdomains(q6)
+        if use_assetfinder:
+            append_subdomains(q1)
+        if use_subfinder:
+            append_subdomains(q2)
+        if use_sublist3r:
+            append_subdomains(q3)
+        if use_findomain:
+            append_subdomains(q4)
+        if use_abuseip_api:
+            append_subdomains(q5)
+        if use_certsh_api:
+            append_subdomains(q6)
 
             
     # db connection setup
