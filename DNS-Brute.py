@@ -112,6 +112,8 @@ async def main():
                         action="store_true", dest="use_abuseip_api",required=False)
     parser.add_argument('-m', "--diff", help="Get Only New Subdomains",
                         action="store_true", dest="return_diffrences")
+    parser.add_argument('-w', "--wordlist", help="wordlist path",
+                        dest="wordlist",required=False)
     parser.add_argument('-c', "--config",
                         help="You Can Use Config File Instead; With Extra Options. If Config With Argument Are Passed, Config File Will Only Be Used ",
                         dest="config",required=False)
@@ -127,7 +129,7 @@ async def main():
         print('Wrong Argument Passing!')
         sys.exit()
 
-    use_assetfinder, use_subfinder, use_sublist3r, use_findomain,use_certsh_api, use_abuseip_api, config_path,return_diffrences = args['use_assetfinder'], args['use_subfinder'], args['use_sublist3r'], args['use_findomain'],args['use_certsh_api'], args['use_abuseip_api'], args['config'],args['return_diffrences']
+    use_assetfinder, use_subfinder, use_sublist3r, use_findomain,use_certsh_api, use_abuseip_api, config_path,return_diffrences,wordlist = args['use_assetfinder'], args['use_subfinder'], args['use_sublist3r'], args['use_findomain'],args['use_certsh_api'], args['use_abuseip_api'], args['config'],args['return_diffrences'],args['wordlist']
     domain=Domain()
     domain.name=args['domain']
 
@@ -194,30 +196,20 @@ async def main():
     merged_subdomains = list(set(subdomains))
     print("merged_subdomains",merged_subdomains)
     if return_diffrences:
-        previous_inserted_subdomains=await db['subdomains'].find_one()
-        returning_subdomains=merged_subdomains - previous_inserted_subdomains.names
-    db['subdomains'].insert_one([{'name': subdomain } for subdomain in merged_subdomains])
-    # if domain.generate_wordlist:
-    #     # Bind Wordlist with domain --> <wordlist>.domain.tld
-    #     # remove soon
-    #     # os.chdir(path1)
-    #     # os.system('cp wordlists/wordlist_1.txt DB-DNS-Brute/Bind_domain_wordlist.txt')
-    #     # os.system("sed -e 's/$/." + domain.name + "/' -i DB-DNS-Brute/Bind_domain_wordlist.txt")
-    #     # print('[+] Generate Wordlist.' + domain.name + ' Ok\n')
+        previous_inserted_subdomains=await db['subdomains'].find({})
+        returning_subdomains=merged_subdomains - [pisubdomain.name for pisubdomain in previous_inserted_subdomains]
+    db['subdomains'].insert_many([{'name': subdomain } for subdomain in merged_subdomains])
+    print(returning_subdomains)
+    # if wordlist is not None:
+    #     await validate_file(config_path)
+    #     async with aiofiles.open(config_path, mode='r') as f:
+    #         wlist=f.read().split('\n')
+    #         wlist_subs=[each+"."+domain.name for each in wlist]
 
-    #     os.system('mkdir ./' + domain.name)
-    #     os.system('cp wordlists/wordlist_1.txt ./' + domain.name + '/bind_domain.txt')
-    #     generated_subdomains = subprocess.Popen(
-    #         "sed -e 's/$/." + domain.name + "/' -i ./" + domain.name + '/bind_domain.txt', stdout=subprocess.PIPE,
-    #         stderr=subprocess.PIPE)
-    #     out, err = generated_subdomains.communicate()
-    #     async with aiofiles.open('filename', mode='r') as f:
-    #         async for line in f:
-    #             print(line)
+    #     print('[+] Generate Wordlist.' + domain.name + ' Ok\n')
 
     #     # Merge Wordlist.domain.tld with Provider
-    #     os.system(
-    #         'cat DB-DNS-Brute/no_duplicate.txt DB-DNS-Brute/Bind_domain_wordlist.txt | sort -u >> DB-DNS-Brute/Merge_subdomains_2.txt')
+    #     merged_subdomains_and_wlist=merged_subdomains+wlist_subs
 
     #     # shuffledns-step1
     #     os.system(
@@ -235,8 +227,6 @@ async def main():
     #     os.system(
     #         'cat DB-DNS-Brute/Resolve_1.txt DB-DNS-Brute/Resolve_2.txt | sort -u >> DB-DNS-Resolve/' + domain_path + '/' + domain_path + '.txt')
 
-    # Send END Notify
-    # os.system("echo  'DNS-Brute(" + domain +  ") -->  END' | notify -id '***'")
 
 
 # Python 3.7+
