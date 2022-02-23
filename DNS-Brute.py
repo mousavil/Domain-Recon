@@ -135,7 +135,10 @@ async def main():
     domain.name=args['domain']
 
     if config_path:
-        await validate_file(config_path)
+        validated=await validate_file(config_path)
+        if not validated:
+            print("[-] Invalid Wordlist Path")
+            sys.exit()
         async with aiofiles.open(config_path, mode='r') as f:
             config=json.load(f)
             use_assetfinder=config['use-assetfinder']
@@ -147,97 +150,102 @@ async def main():
             return_diffrences=config['return-diffrences']
 
 
-    # try:
-    #     q1=Queue();q2=Queue();q3=Queue();q4=Queue();q5=Queue();q6=Queue()
-    #     if use_assetfinder:
-    #         add_process(call_assetfinder,domain.name,q1)
-    #     if use_subfinder:
-    #         add_process(call_subfinder,domain.name,q2)
-    #     if use_sublist3r:
-    #         add_process(call_sublist3r,domain.name,q3)
-    #     if use_findomain:
-    #         add_process(call_findomain,domain.name,q4)
-    #     if use_abuseip_api:
-    #         add_process(call_abuse_ip,domain.name,q5)
-    #     if use_certsh_api:
-    #         add_process(call_certsh,domain.name,q6)
-    #     for proc in processes:
-    #         join_process(proc)
+    try:
+        q1=Queue();q2=Queue();q3=Queue();q4=Queue();q5=Queue();q6=Queue()
+        if use_assetfinder:
+            add_process(call_assetfinder,domain.name,q1)
+        if use_subfinder:
+            add_process(call_subfinder,domain.name,q2)
+        if use_sublist3r:
+            add_process(call_sublist3r,domain.name,q3)
+        if use_findomain:
+            add_process(call_findomain,domain.name,q4)
+        if use_abuseip_api:
+            add_process(call_abuse_ip,domain.name,q5)
+        if use_certsh_api:
+            add_process(call_certsh,domain.name,q6)
+        for proc in processes:
+            join_process(proc)
         
             
-    # except KeyboardInterrupt:
-    #     pass
-    # finally:
-    #     if use_assetfinder:
-    #         append_subdomains(q1)
-    #     if use_subfinder:
-    #         append_subdomains(q2)
-    #     if use_sublist3r:
-    #         append_subdomains(q3)
-    #     if use_findomain:
-    #         append_subdomains(q4)
-    #     if use_abuseip_api:
-    #         append_subdomains(q5)
-    #     if use_certsh_api:
-    #         append_subdomains(q6)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        if use_assetfinder:
+            append_subdomains(q1)
+        if use_subfinder:
+            append_subdomains(q2)
+        if use_sublist3r:
+            append_subdomains(q3)
+        if use_findomain:
+            append_subdomains(q4)
+        if use_abuseip_api:
+            append_subdomains(q5)
+        if use_certsh_api:
+            append_subdomains(q6)
 
-            
-    # # db connection setup
-    # client = mongo.AsyncIOMotorClient(
-    #     f'mongodb://{DB_USERNAME}:{DB_PASSWORD}@127.0.0.1/admin?retryWrites=true&w=majority')
-    # db = client[domain.name.replace('.','-')]
-    
+    merged_subdomains = list(set(subdomains))
 
-    # # Get Resolver
-    # # https://github.com/BonJarber/fresh-resolvers
+    # Get Resolver
+    # https://github.com/BonJarber/fresh-resolvers
     subprocess.run(['rm', '-f', 'resolvers.txt'])
     resolver = subprocess.run(['wget', 'https://raw.githubusercontent.com/BonJarber/fresh-resolvers/main/resolvers.txt'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
-    # merged_subdomains = list(set(subdomains))
-    # returning_subdomains=merged_subdomains
-    # if return_diffrences:
-    #     previous_inserted_subdomains=await db['subdomains'].find({})
-    #     returning_subdomains=merged_subdomains - [pisubdomain.name for pisubdomain in previous_inserted_subdomains]
-    # db['subdomains'].insert_many([{'name': subdomain } for subdomain in merged_subdomains])
-    # print(returning_subdomains)
-    merged_subdomains=[]
+    merged_subdomains_and_wlist=[]
     if wordlist is not None:
-        await validate_file(wordlist)
+        validated=await validate_file(wordlist)
+        if not validated:
+            print("[-] Invalid Wordlist Path")
+            sys.exit()
         async with aiofiles.open(wordlist, mode='r') as f:
             wlist=await f.readlines()
             wlist_subs=[each.replace('\n','')+"."+domain.name for each in wlist]
 
         print('[+] Generate Wordlist.' + domain.name + ' Ok\n')
 
-        # Merge Wordlist.domain.tld with Provider
+        # Merge Wordlist with Provider
         merged_subdomains_and_wlist=merged_subdomains+wlist_subs
-    #     # shuffledns-step1
-        try:
-            response = subprocess.Popen(
-                ['shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE )
-            inputs='\n'.join(merged_subdomains_and_wlist).encode('utf8')
-            # response.stdin.write(inputs)
-            out,err=response.communicate(input=inputs)
-            # response.stdin.close()
-            output=out.decode('utf-8')
-            print(output,err)
-        except Exception as e:
-            print(e)
-    #     # DNSGen
-        # os.system(
-        #     'cat DB-DNS-Brute/Resolve_1.txt DB-DNS-Brute/no_duplicate.txt | sort -u | dnsgen - >> DB-DNS-Brute/dnsgen.txt')
+    else:
+        merged_subdomains_and_wlist=merged_subdomains
+        # shuffledns
+    response = subprocess.Popen(
+        ['shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    out,err=response.communicate(input='\n'.join(merged_subdomains_and_wlist).encode('utf8'))
+    resolved_subdomains=out.decode('utf-8').split('\n')
+    merged_resolved_subdomains_and_provided=list(set([resolved for resolved in resolved_subdomains if domain.name in str(resolved)] + merged_subdomains))
+    # DNSGen
+    response = subprocess.Popen(
+    ['dnsgen'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    out,err=response.communicate(input='\n'.join(merged_resolved_subdomains_and_provided).encode('utf8'))
+    dnsgen_resolved_subdomains=out.decode('utf-8')
 
-    #     # shuffledns-step2
-    #     os.system(
-    #         'shuffledns -d ' + domain.name + ' -list DB-DNS-Brute/dnsgen.txt -r resolvers.txt -silent > DB-DNS-Brute/Resolve_2.txt')
+    # shuffledns
+    response = subprocess.Popen(
+        ['shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+    out,err=response.communicate(input='\n'.join(dnsgen_resolved_subdomains).encode('utf8'))
+    resolved_subdomains_2=out.decode('utf-8').split('\n')
 
-    #     # Merge_Resolved
-    #     os.system(
-    #         'cat DB-DNS-Brute/Resolve_1.txt DB-DNS-Brute/Resolve_2.txt | sort -u >> DB-DNS-Resolve/' + domain_path + '/' + domain_path + '.txt')
+    print(resolved_subdomains+resolved_subdomains_2)
 
+    merged_subdomains=resolved_subdomains+resolved_subdomains_2
 
-
-# Python 3.7+
+    # db connection setup
+    client = mongo.AsyncIOMotorClient(
+        f'mongodb://{DB_USERNAME}:{DB_PASSWORD}@127.0.0.1/admin?retryWrites=true&w=majority')
+    db = client[domain.name.replace('.','-')]
+    
+    #db diffrence foundation 
+    returning_subdomains=[]
+    previous_inserted_subdomains=await db['subdomains'].find({})
+    returning_subdomains=merged_subdomains - [pisubdomain.name for pisubdomain in previous_inserted_subdomains]
+    await db['subdomains'].insert_many([{'name': subdomain } for subdomain in returning_subdomains])
+    
+    if not return_diffrences:
+        returning_subdomains = merged_subdomains 
+        
+    print(returning_subdomains)
+    return
+    
 asyncio.run(main())
 
