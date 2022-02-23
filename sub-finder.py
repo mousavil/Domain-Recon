@@ -49,7 +49,7 @@ def call_subfinder(domain: str,q:Queue):
 
 def call_sublist3r(domain: str,q:Queue):
     print(colored('[+] Starting Sublist3r On ' + domain +'\n','red'))
-    sublist3r = subprocess.Popen(["sublist3r", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    sublist3r = subprocess.Popen(["sublist3r", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
     out, err = sublist3r.communicate()
     add_founded_subdomains_to_q(domain,q,out)
 
