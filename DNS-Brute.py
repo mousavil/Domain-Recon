@@ -215,11 +215,10 @@ async def main():
     #     # shuffledns-step1
         try:
             response = subprocess.Popen(
-                ['echo','\n'.join(merged_subdomains_and_wlist),'|','shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True )
+                ['echo','www.pishrocloud.com\nsupport.pishrocloud.com','|','shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True )
             # inputs=' \n '.join(merged_subdomains_and_wlist).encode('utf8')
             # response.stdin.write(inputs)
             out,err=response.communicate()
-            response.stdin.close()
             output=out.decode('utf-8')
             print(output,err)
         except Exception as e:
