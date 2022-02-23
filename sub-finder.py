@@ -13,13 +13,15 @@ from multiprocessing import Process,Queue
 import asyncio
 from pyfiglet import Figlet
 from termcolor import colored
-
+import platform
 
 # Initiates
 processes = []
 subdomains = []
 DB_USERNAME = "amir"
 DB_PASSWORD = "Am0925227307"
+bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
+tools_path= os.path.abspath(os.path.join(bundle_dir,'tools/'))
 class Domain(object):
     def __init__(self):
         self.name = ''
@@ -30,6 +32,8 @@ print('Implemented By :\n',colored(f2.renderText('Mousavil'),'green'))
 
 #Functions
 
+async def install_prequesties():
+    os.system('pip3 install dnsgen')
 async def validate_file(file_path:str):
     return path.isfile(file_path)
 
@@ -42,28 +46,28 @@ def add_founded_subdomains_to_q(domain,q,out:bytes):
 
 def call_subfinder(domain: str,q:Queue):
     print(colored('[+] Starting Subfinder On ' + domain +'\n','red'))
-    subfinder = subprocess.Popen(["subfinder", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    subfinder = subprocess.Popen([tools_path+"/subfinder", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = subfinder.communicate()
     add_founded_subdomains_to_q(domain,q,out)
 
 
 def call_sublist3r(domain: str,q:Queue):
     print(colored('[+] Starting Sublist3r On ' + domain +'\n','red'))
-    sublist3r = subprocess.Popen(["sublist3r", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
+    sublist3r = subprocess.Popen([tools_path+"/sublist3r", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE,shell=True)
     out, err = sublist3r.communicate()
     add_founded_subdomains_to_q(domain,q,out)
 
 
 def call_findomain(domain: str,q:Queue):
     print(colored('[+] Starting Findomain On ' + domain +'\n','red'))
-    findomain = subprocess.Popen(["findomain-linux" ,"--target", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    findomain = subprocess.Popen([tools_path+"/findomain-linux" ,"--target", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = findomain.communicate()
     add_founded_subdomains_to_q(domain,q,out)
 
 
 def call_assetfinder(domain: str,q:Queue):
     print(colored('[+] Starting Assetfinder On ' + domain +'\n','red'))
-    assetfinder = subprocess.Popen(["assetfinder", "--subs-only", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    assetfinder = subprocess.Popen([tools_path+"/assetfinder", "--subs-only", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = assetfinder.communicate()
     add_founded_subdomains_to_q(domain,q,out)
 
@@ -134,7 +138,7 @@ async def main():
     try:
         args = vars(parser.parse_args())
     except:
-        exit(0)
+        sys.exit()
 
     if (not (args['use_assetfinder'] or args['use_subfinder'] or args['use_sublist3r'] or \
             args['use_findomain'] or args['use_abuseip_api'] or args['config'])) or not args['domain']:
@@ -221,7 +225,7 @@ async def main():
         merged_subdomains_and_wlist=merged_subdomains
         # shuffledns
     response = subprocess.Popen(
-        ['shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+        [tools_path+'/shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE )
     out,err=response.communicate(input='\n'.join(merged_subdomains_and_wlist).encode('utf8'))
     resolved_subdomains=out.decode('utf-8').split('\n')
     merged_resolved_subdomains_and_provided=list(set([resolved for resolved in resolved_subdomains if domain.name in str(resolved)] + merged_subdomains))
@@ -233,7 +237,7 @@ async def main():
 
     # shuffledns
     response = subprocess.Popen(
-        ['shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE )
+        [tools_path+'/shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE )
     out,err=response.communicate(input='\n'.join(dnsgen_resolved_subdomains).encode('utf8'))
     resolved_subdomains_2=[resolved for resolved in out.decode('utf-8').split('\n') if domain.name in str(resolved)]
 
@@ -255,7 +259,7 @@ async def main():
     if not return_diffrences:
         returning_subdomains = merged_subdomains 
         
-    print(returning_subdomains)
+    print(colored(returning_subdomains.remove(''),'green'))
     return
     
 asyncio.run(main())
