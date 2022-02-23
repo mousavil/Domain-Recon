@@ -190,9 +190,8 @@ async def main():
 
     # # Get Resolver
     # # https://github.com/BonJarber/fresh-resolvers
-    subprocess.Popen(['rm', '-f', 'resolvers.txt']).communicate()
-    resolver = subprocess.Popen(['wget', 'https://raw.githubusercontent.com/BonJarber/fresh-resolvers/main/resolvers.txt'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = resolver.communicate()
+    subprocess.run(['rm', '-f', 'resolvers.txt'])
+    resolver = subprocess.run(['wget', 'https://raw.githubusercontent.com/BonJarber/fresh-resolvers/main/resolvers.txt'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
     # merged_subdomains = list(set(subdomains))
