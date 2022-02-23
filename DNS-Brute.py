@@ -1,6 +1,7 @@
 #!usr/bin/env python3
 
 # Modules
+from logging import exception
 import os,sys
 import motor.motor_asyncio as mongo
 import subprocess
@@ -212,14 +213,17 @@ async def main():
         # Merge Wordlist.domain.tld with Provider
         merged_subdomains_and_wlist=merged_subdomains+wlist_subs
     #     # shuffledns-step1
-        response = subprocess.Popen(
-            ['shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True )
-        inputs='\n'.join(merged_subdomains_and_wlist).encode('utf-8')
-        response.stdin.write(inputs)
-        out=response.communicate()[0]
-        response.stdin.close()
-        output=out.decode('utf-8')
-        print(output)
+        try:
+            response = subprocess.Popen(
+                ['shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True )
+            inputs='\n'.join(merged_subdomains_and_wlist).encode('utf-8')
+            response.stdin.write(inputs)
+            out,err=response.communicate()
+            response.stdin.close()
+            output=out.decode('utf-8')
+            print(output,err)
+        except Exception as e:
+            print(e)
     #     # DNSGen
         # os.system(
         #     'cat DB-DNS-Brute/Resolve_1.txt DB-DNS-Brute/no_duplicate.txt | sort -u | dnsgen - >> DB-DNS-Brute/dnsgen.txt')
