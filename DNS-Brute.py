@@ -225,7 +225,7 @@ async def main():
         ['shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE )
     out,err=response.communicate(input='\n'.join(dnsgen_resolved_subdomains).encode('utf8'))
     resolved_subdomains_2=[resolved for resolved in out.decode('utf-8').split('\n') if domain.name in str(resolved)]
-    print(resolved_subdomains+resolved_subdomains_2)
+
 
     merged_subdomains=resolved_subdomains+resolved_subdomains_2
 
@@ -237,7 +237,7 @@ async def main():
     #db diffrence foundation 
     returning_subdomains=[]
     previous_inserted_subdomains=await db['subdomains'].find().to_list(1000)
-    print('fetched db data =',[pisubdomain.name for pisubdomain in previous_inserted_subdomains])
+    print('wth? ',merged_subdomains)
     returning_subdomains=merged_subdomains - [pisubdomain.name for pisubdomain in previous_inserted_subdomains]
     await db['subdomains'].insert_many([{'name': subdomain } for subdomain in returning_subdomains])
     
