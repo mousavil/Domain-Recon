@@ -41,7 +41,7 @@ def add_founded_subdomains_to_q(domain,q,out:bytes):
     
 
 def call_subfinder(domain: str,q:Queue):
-    print('[+] Starting Subfinder On ' + domain.name +'\n')
+    print('[+] Starting Subfinder On ' + domain +'\n')
     subfinder = subprocess.Popen(["subfinder", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = subfinder.communicate()
     add_founded_subdomains_to_q(domain,q,out)
