@@ -11,7 +11,8 @@ from os import path
 import argparse
 from multiprocessing import Process,Queue
 import asyncio
-
+from pyfiglet import Figlet
+from termcolor import colored
 
 
 # Initiates
@@ -22,6 +23,10 @@ DB_PASSWORD = "Am0925227307"
 class Domain(object):
     def __init__(self):
         self.name = ''
+f=Figlet(font="chunky")
+f2=Figlet(font="digital")
+print(colored(f.renderText('Ultimate SubFinder'),'green'))
+print('Implemented By :\n',colored(f2.renderText('Mousavil'),'green'))
 
 #Functions
 
@@ -237,7 +242,6 @@ async def main():
     #db diffrence foundation 
     returning_subdomains=[]
     previous_inserted_subdomains=await db['subdomains'].find().to_list(1000)
-    print(previous_inserted_subdomains)
     returning_subdomains=list(set(merged_subdomains) - set([pisubdomain.get('name') for pisubdomain in previous_inserted_subdomains]))
     if len(returning_subdomains)!=0:
         await db['subdomains'].insert_many([{'name': subdomain } for subdomain in returning_subdomains])
