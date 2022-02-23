@@ -191,7 +191,7 @@ async def main():
     # # Get Resolver
     # # https://github.com/BonJarber/fresh-resolvers
     subprocess.Popen(['rm', '-f', 'resolvers.txt']).communicate()
-    resolver = subprocess.Popen(['wget https://github.com/BonJarber/fresh-resolvers/blob/main/resolvers.txt'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    resolver = subprocess.Popen(['wget', 'https://github.com/BonJarber/fresh-resolvers/blob/main/resolvers.txt'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = resolver.communicate()
 
 
