@@ -24,7 +24,7 @@ class Domain(object):
 
 #Functions
 
-def validate_file(file_path:str):
+async def validate_file(file_path:str):
     return path.isfile(file_path)
 
 def add_founded_subdomains_to_q(domain,q,out:bytes):
@@ -146,79 +146,83 @@ async def main():
             return_diffrences=config['return-diffrences']
 
 
-    try:
-        q1=Queue();q2=Queue();q3=Queue();q4=Queue();q5=Queue();q6=Queue()
-        if use_assetfinder:
-            add_process(call_assetfinder,domain.name,q1)
-        if use_subfinder:
-            add_process(call_subfinder,domain.name,q2)
-        if use_sublist3r:
-            add_process(call_sublist3r,domain.name,q3)
-        if use_findomain:
-            add_process(call_findomain,domain.name,q4)
-        if use_abuseip_api:
-            add_process(call_abuse_ip,domain.name,q5)
-        if use_certsh_api:
-            add_process(call_certsh,domain.name,q6)
-        for proc in processes:
-            join_process(proc)
+    # try:
+    #     q1=Queue();q2=Queue();q3=Queue();q4=Queue();q5=Queue();q6=Queue()
+    #     if use_assetfinder:
+    #         add_process(call_assetfinder,domain.name,q1)
+    #     if use_subfinder:
+    #         add_process(call_subfinder,domain.name,q2)
+    #     if use_sublist3r:
+    #         add_process(call_sublist3r,domain.name,q3)
+    #     if use_findomain:
+    #         add_process(call_findomain,domain.name,q4)
+    #     if use_abuseip_api:
+    #         add_process(call_abuse_ip,domain.name,q5)
+    #     if use_certsh_api:
+    #         add_process(call_certsh,domain.name,q6)
+    #     for proc in processes:
+    #         join_process(proc)
         
             
-    except KeyboardInterrupt:
-        pass
-    finally:
-        if use_assetfinder:
-            append_subdomains(q1)
-        if use_subfinder:
-            append_subdomains(q2)
-        if use_sublist3r:
-            append_subdomains(q3)
-        if use_findomain:
-            append_subdomains(q4)
-        if use_abuseip_api:
-            append_subdomains(q5)
-        if use_certsh_api:
-            append_subdomains(q6)
+    # except KeyboardInterrupt:
+    #     pass
+    # finally:
+    #     if use_assetfinder:
+    #         append_subdomains(q1)
+    #     if use_subfinder:
+    #         append_subdomains(q2)
+    #     if use_sublist3r:
+    #         append_subdomains(q3)
+    #     if use_findomain:
+    #         append_subdomains(q4)
+    #     if use_abuseip_api:
+    #         append_subdomains(q5)
+    #     if use_certsh_api:
+    #         append_subdomains(q6)
 
             
-    # db connection setup
-    client = mongo.AsyncIOMotorClient(
-        f'mongodb://{DB_USERNAME}:{DB_PASSWORD}@127.0.0.1/admin?retryWrites=true&w=majority')
-    db = client[domain.name.replace('.','-')]
+    # # db connection setup
+    # client = mongo.AsyncIOMotorClient(
+    #     f'mongodb://{DB_USERNAME}:{DB_PASSWORD}@127.0.0.1/admin?retryWrites=true&w=majority')
+    # db = client[domain.name.replace('.','-')]
     
 
-    # Get Resolver
-    # https://github.com/BonJarber/fresh-resolvers
-    os.system('rm -f resolvers.txt')
-    os.system('wget https://github.com/BonJarber/fresh-resolvers/blob/main/resolvers.txt')
+    # # Get Resolver
+    # # https://github.com/BonJarber/fresh-resolvers
+    # os.system('rm -f resolvers.txt')
+    # os.system('wget https://github.com/BonJarber/fresh-resolvers/blob/main/resolvers.txt')
 
 
-    merged_subdomains = list(set(subdomains))
-    returning_subdomains=merged_subdomains
-    if return_diffrences:
-        previous_inserted_subdomains=await db['subdomains'].find({})
-        returning_subdomains=merged_subdomains - [pisubdomain.name for pisubdomain in previous_inserted_subdomains]
-    db['subdomains'].insert_many([{'name': subdomain } for subdomain in merged_subdomains])
-    print(returning_subdomains)
-    return
-    # if wordlist is not None:
-    #     await validate_file(config_path)
-    #     async with aiofiles.open(config_path, mode='r') as f:
-    #         wlist=f.read().split('\n')
-    #         wlist_subs=[each+"."+domain.name for each in wlist]
+    # merged_subdomains = list(set(subdomains))
+    # returning_subdomains=merged_subdomains
+    # if return_diffrences:
+    #     previous_inserted_subdomains=await db['subdomains'].find({})
+    #     returning_subdomains=merged_subdomains - [pisubdomain.name for pisubdomain in previous_inserted_subdomains]
+    # db['subdomains'].insert_many([{'name': subdomain } for subdomain in merged_subdomains])
+    # print(returning_subdomains)
+    merged_subdomains=[]
+    if wordlist is not None:
+        await validate_file(wordlist)
+        async with aiofiles.open(wordlist, mode='r') as f:
+            wlist=await f.readlines()
+            wlist_subs=[each.replace('\n','')+"."+domain.name for each in wlist]
 
-    #     print('[+] Generate Wordlist.' + domain.name + ' Ok\n')
+        print('[+] Generate Wordlist.' + domain.name + ' Ok\n')
 
-    #     # Merge Wordlist.domain.tld with Provider
-    #     merged_subdomains_and_wlist=merged_subdomains+wlist_subs
-
+        # Merge Wordlist.domain.tld with Provider
+        merged_subdomains_and_wlist=merged_subdomains+wlist_subs
     #     # shuffledns-step1
-    #     os.system(
-    #         'shuffledns -d ' + domain.name + ' -list DB-DNS-Brute/Merge_subdomains_2.txt -r resolvers.txt -silent > DB-DNS-Brute/Resolve_1.txt')
-
+        response = subprocess.Popen(
+            ['shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True )
+        inputs='\n'.join(merged_subdomains_and_wlist).encode('utf-8')
+        response.stdin.write(inputs)
+        out=response.communicate()[0]
+        response.stdin.close()
+        output=out.decode('utf-8')
+        print(output)
     #     # DNSGen
-    #     os.system(
-    #         'cat DB-DNS-Brute/Resolve_1.txt DB-DNS-Brute/no_duplicate.txt | sort -u | dnsgen - >> DB-DNS-Brute/dnsgen.txt')
+        os.system(
+            'cat DB-DNS-Brute/Resolve_1.txt DB-DNS-Brute/no_duplicate.txt | sort -u | dnsgen - >> DB-DNS-Brute/dnsgen.txt')
 
     #     # shuffledns-step2
     #     os.system(

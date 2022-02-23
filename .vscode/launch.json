@@ -9,7 +9,8 @@
             "args": [
                 "-d", "pishrocloud.com",
                 "-sf",
-                "-sl"
+                "-sl",
+                "-w","./test1.txt"
             ],
             "program": "${file}",
             "console": "integratedTerminal"

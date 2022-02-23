@@ -1,1 +1,9 @@
-[Errno 2] No such file or directory: 'subfinder -d pishrocloud.com'
+sentry
+api.pth.base
+support
+chat
+repo
+ns2
+mail
+pth.base
+apps.pth.base
