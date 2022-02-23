@@ -41,31 +41,35 @@ def add_founded_subdomains_to_q(domain,q,out:bytes):
     
 
 def call_subfinder(domain: str,q:Queue):
-    print('[+] Starting Subfinder On ' + domain +'\n')
+    print(colored('[+] Starting Subfinder On ' + domain +'\n','red'))
     subfinder = subprocess.Popen(["subfinder", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = subfinder.communicate()
     add_founded_subdomains_to_q(domain,q,out)
 
 
 def call_sublist3r(domain: str,q:Queue):
+    print(colored('[+] Starting Sublist3r On ' + domain +'\n','red'))
     sublist3r = subprocess.Popen(["sublist3r", "-d", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = sublist3r.communicate()
     add_founded_subdomains_to_q(domain,q,out)
 
 
 def call_findomain(domain: str,q:Queue):
+    print(colored('[+] Starting Findomain On ' + domain +'\n','red'))
     findomain = subprocess.Popen(["findomain-linux" ,"--target", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = findomain.communicate()
     add_founded_subdomains_to_q(domain,q,out)
 
 
 def call_assetfinder(domain: str,q:Queue):
+    print(colored('[+] Starting Assetfinder On ' + domain +'\n','red'))
     assetfinder = subprocess.Popen(["assetfinder", "--subs-only", domain], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = assetfinder.communicate()
     add_founded_subdomains_to_q(domain,q,out)
 
     
 def call_certsh(domain: str,q:Queue):
+    print(colored('[+] Reading Cert.sh Assets For ' + domain +'\n','red'))
     certsh = subprocess.Popen(
         'curl -sk "https://crt.sh/?q=' + domain + '&output=json" | jq -r ".[].common_name,.[].name_value" | deduplicate --sort >> DB-DNS-Brute/API_crt-sh.txt',
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -74,6 +78,7 @@ def call_certsh(domain: str,q:Queue):
 
 
 def call_abuse_ip(domain: str,q:Queue):
+    print(colored('[+] Reading AbuseIP Assets For ' + domain +'\n','red'))
     abuse_ip = subprocess.Popen(
         '''curl -s "https://www.abuseipdb.com/whois/''' + domain + '''" -H "user-agent: Chrome" | grep -E "<li>\w.*</li>" | sed -E "s/<\/?li>//g" | sed -e "s/$/.''' + domain + '''/" >> DB-DNS-Brute/API_abuseipdb.txt''',
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
