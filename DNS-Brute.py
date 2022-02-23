@@ -216,7 +216,7 @@ async def main():
         try:
             response = subprocess.Popen(
                 ['shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True )
-            inputs='\\n'.join(merged_subdomains_and_wlist)
+            inputs='\\n'.join(merged_subdomains_and_wlist).encode('utf8')
             response.stdin.write(inputs)
             out,err=response.communicate()
             response.stdin.close()
