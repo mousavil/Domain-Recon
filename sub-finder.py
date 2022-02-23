@@ -239,7 +239,8 @@ async def main():
     previous_inserted_subdomains=await db['subdomains'].find().to_list(1000)
     print(previous_inserted_subdomains)
     returning_subdomains=list(set(merged_subdomains) - set([pisubdomain.get('name') for pisubdomain in previous_inserted_subdomains]))
-    await db['subdomains'].insert_many([{'name': subdomain } for subdomain in returning_subdomains])
+    if len(returning_subdomains)!=0:
+        await db['subdomains'].insert_many([{'name': subdomain } for subdomain in returning_subdomains])
     
     if not return_diffrences:
         returning_subdomains = merged_subdomains 
