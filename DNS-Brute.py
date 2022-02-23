@@ -237,6 +237,7 @@ async def main():
     #db diffrence foundation 
     returning_subdomains=[]
     previous_inserted_subdomains=await db['subdomains'].find().to_list(1000)
+    print(previous_inserted_subdomains)
     returning_subdomains=list(set(merged_subdomains) - set([pisubdomain.name for pisubdomain in previous_inserted_subdomains]))
     await db['subdomains'].insert_many([{'name': subdomain } for subdomain in returning_subdomains])
     
