@@ -221,8 +221,8 @@ async def main():
         output=out.decode('utf-8')
         print(output)
     #     # DNSGen
-        os.system(
-            'cat DB-DNS-Brute/Resolve_1.txt DB-DNS-Brute/no_duplicate.txt | sort -u | dnsgen - >> DB-DNS-Brute/dnsgen.txt')
+        # os.system(
+        #     'cat DB-DNS-Brute/Resolve_1.txt DB-DNS-Brute/no_duplicate.txt | sort -u | dnsgen - >> DB-DNS-Brute/dnsgen.txt')
 
     #     # shuffledns-step2
     #     os.system(
