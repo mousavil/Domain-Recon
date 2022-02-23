@@ -216,10 +216,10 @@ async def main():
         try:
             response = subprocess.Popen(
                 ['shuffledns', '-d', domain.name , '-r' ,'resolvers.txt', '-silent'], stdin=subprocess.PIPE,stdout=subprocess.PIPE, stderr=subprocess.PIPE )
-            inputs=' \n '.join(merged_subdomains_and_wlist).encode('utf8')
-            response.stdin.write(inputs)
-            out,err=response.communicate()
-            response.stdin.close()
+            inputs='\n'.join(merged_subdomains_and_wlist).encode('utf8')
+            # response.stdin.write(inputs)
+            out,err=response.communicate(input=inputs)
+            # response.stdin.close()
             output=out.decode('utf-8')
             print(output,err)
         except Exception as e:
