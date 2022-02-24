@@ -246,7 +246,7 @@ async def main():
 
     # db connection setup
     client = mongo.AsyncIOMotorClient(
-        f'mongodb://{DB_USERNAME}:{DB_PASSWORD}@127.0.0.1/admin?retryWrites=true&w=majority')
+        f'mongodb://{DB_USERNAME}:{DB_PASSWORD}@188.121.109.183:27010/admin?retryWrites=true&w=majority')
     db = client[domain.name.replace('.','-')]
     
     #db diffrence foundation 
@@ -258,7 +258,7 @@ async def main():
     
     if not return_diffrences:
         returning_subdomains = merged_subdomains 
-        
+    returning_subdomains.remove('')    
     print(colored(returning_subdomains,'green'))
     return
     
