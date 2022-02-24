@@ -8,9 +8,7 @@
             "request": "launch",
             "args": [
                 "-d", "pishrocloud.com",
-                "-sf",
-                "-sl",
-                "-w","./test1.txt"
+                "-crt"
             ],
             "program": "${file}",
             "console": "integratedTerminal"

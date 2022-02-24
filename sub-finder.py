@@ -75,7 +75,7 @@ def call_assetfinder(domain: str,q:Queue):
 def call_certsh(domain: str,q:Queue):
     print(colored('[+] Reading Cert.sh Assets For ' + domain +'\n','red'))
     certsh = subprocess.Popen(
-        'curl -sk "https://crt.sh/?q=' + domain + '&output=json" | jq -r ".[].common_name,.[].name_value" | deduplicate --sort >> DB-DNS-Brute/API_crt-sh.txt',
+        'curl -sk "https://crt.sh/?q=' + domain + '&output=json" | '+tools_path+'/jq -r ".[].common_name,.[].name_value" | ' + tools_path+'/deduplicate --sort ',shell=True,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = certsh.communicate()
     add_founded_subdomains_to_q(domain,q,out)
@@ -84,8 +84,8 @@ def call_certsh(domain: str,q:Queue):
 def call_abuse_ip(domain: str,q:Queue):
     print(colored('[+] Reading AbuseIP Assets For ' + domain +'\n','red'))
     abuse_ip = subprocess.Popen(
-        '''curl -s "https://www.abuseipdb.com/whois/''' + domain + '''" -H "user-agent: Chrome" | grep -E "<li>\w.*</li>" | sed -E "s/<\/?li>//g" | sed -e "s/$/.''' + domain + '''/" >> DB-DNS-Brute/API_abuseipdb.txt''',
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        '''curl -s "https://www.abuseipdb.com/whois/''' + domain + '''" -H "user-agent: Chrome" | grep -E "<li>\w.*</li>" | sed -E "s/<\/?li>//g" | sed -e "s/$/.''' + domain + '''/" ''',
+       shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = abuse_ip.communicate()
     add_founded_subdomains_to_q(domain,q,out)
 
@@ -141,7 +141,7 @@ async def main():
         sys.exit()
 
     if (not (args['use_assetfinder'] or args['use_subfinder'] or args['use_sublist3r'] or \
-            args['use_findomain'] or args['use_abuseip_api'] or args['config'])) or not args['domain']:
+            args['use_findomain'] or args['use_abuseip_api'] or args['use_certsh_api'] or args['config'])) or not args['domain']:
         print('Wrong Argument Passing!')
         sys.exit()
 
@@ -259,7 +259,7 @@ async def main():
     if not return_diffrences:
         returning_subdomains = merged_subdomains 
         
-    print(colored(returning_subdomains.remove(''),'green'))
+    print(colored(returning_subdomains,'green'))
     return
     
 asyncio.run(main())
