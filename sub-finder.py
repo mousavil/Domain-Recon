@@ -18,8 +18,11 @@ import platform
 # Initiates
 processes = []
 subdomains = []
-DB_USERNAME = "amir"
-DB_PASSWORD = "Am0925227307"
+DB_USERNAME = "dbusername"
+DB_PASSWORD = "dbpassword"
+DB_HOST = "dbhost"
+DB_PORT = 27017
+
 bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
 tools_path= os.path.abspath(os.path.join(bundle_dir,'tools/'))
 class Domain(object):
@@ -246,7 +249,7 @@ async def main():
 
     # db connection setup
     client = mongo.AsyncIOMotorClient(
-        f'mongodb://{DB_USERNAME}:{DB_PASSWORD}@188.121.109.183:27010/admin?retryWrites=true&w=majority')
+        f'mongodb://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/admin?retryWrites=true&w=majority')
     db = client[domain.name.replace('.','-')]
     
     #db diffrence foundation 
