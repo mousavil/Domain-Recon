@@ -4,7 +4,7 @@ The ultimate subdomain and domain reconnaissance toolkit for pentesters and bug 
 
 Domain Reconnaissance Suite automates the process of thoroughly mapping an organization's external digital footprint and attack surface using both active and passive discovery techniques.
 
-![Screenshot from 2023-09-02 14-48-52](https://github.com/mousavil/Domain-Recon/assets/54477292/0031b922-7201-4417-9485-24a43f88e8dd)
+![Screenshot from 2023-09-02 14-48-52](https://github.com/mousavil/Domain-Recon/assets/54477292/2594e2d5-8577-4983-8c66-af1b6cb6c16b)
 
 ## Features
 
